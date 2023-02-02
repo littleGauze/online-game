@@ -11,9 +11,9 @@ export default class EventManager extends Singleton {
     return super.GetInstance<EventManager>();
   }
 
-  private map: Map<EventEnum, Array<IItem>> = new Map();
+  private map: Map<EventEnum | string, Array<IItem>> = new Map();
 
-  on(event: EventEnum, cb: Function, ctx: unknown) {
+  on(event: EventEnum | string, cb: Function, ctx: unknown) {
     if (this.map.has(event)) {
       this.map.get(event).push({ cb, ctx });
     } else {
@@ -21,14 +21,14 @@ export default class EventManager extends Singleton {
     }
   }
 
-  off(event: EventEnum, cb: Function, ctx: unknown) {
+  off(event: EventEnum | string, cb: Function, ctx: unknown) {
     if (this.map.has(event)) {
       const index = this.map.get(event).findIndex((i) => cb === i.cb && i.ctx === ctx);
       index > -1 && this.map.get(event).splice(index, 1);
     }
   }
 
-  emit(event: EventEnum, ...params: unknown[]) {
+  emit(event: EventEnum | string, ...params: unknown[]) {
     if (this.map.has(event)) {
       this.map.get(event).forEach(({ cb, ctx }) => {
         cb.apply(ctx, params);

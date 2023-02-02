@@ -1,6 +1,5 @@
 {
-  "name": "game",
-  "repository": "https://gitee.com/sli97/cocos-nodejs-io-game.git",
+  "name": "online-game",
   "private": true,
   "version": "1.0.0",
   "workspaces": [
