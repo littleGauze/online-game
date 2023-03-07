@@ -43,4 +43,5 @@ export enum ScenceEnum {
   Battle = 'Battle',
   Login = 'Login',
   Hall = 'Hall',
+  Room = 'Room',
 }

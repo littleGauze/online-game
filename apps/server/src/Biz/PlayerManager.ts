@@ -3,6 +3,7 @@ import { IApiPlayerJoinReq, IPlayer } from "../Common";
 import { Connection } from "../Core";
 import { Player } from "./Player";
 import { ApiMsgEnum } from "../Common/Enum";
+import { RoomManager } from "./RoomManager";
 
 export class PlayerManager extends Singleton {
   static get Instance() {
@@ -14,6 +15,14 @@ export class PlayerManager extends Singleton {
 
   nextPlayerId = 1
 
+  get players() {
+    return this._players
+  }
+
+  getPlayerById(id: number) {
+    return this._idPlayerMap.get(id)
+  }
+
   createPlayer({ nickname, conn }: IApiPlayerJoinReq & { conn: Connection }) {
     const player = new Player({ id: this.nextPlayerId++, nickname, conn })
     this._players.add(player)
@@ -23,6 +32,12 @@ export class PlayerManager extends Singleton {
 
   removePlayer(pid: number) {
     const player = this._idPlayerMap.get(pid)
+    if (player && player.rid) {
+      const room = RoomManager.Instance.getRoomById(player.rid)
+      room.leave(player.id)
+      room.sync()
+    }
+
     if (player) {
       this._players.delete(player)
       this._idPlayerMap.delete(pid)

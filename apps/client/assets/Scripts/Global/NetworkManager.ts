@@ -19,7 +19,7 @@ export default class NetworkManager extends EventManager {
   connect() {
     return new Promise((resolve, reject) => {
       if (this.isConnected) return resolve(true)
-      this._ws = new WebSocket(`ws://192.168.124.3:${this._port}`)
+      this._ws = new WebSocket(`ws://192.168.124.12:${this._port}`)
       this._ws.onopen = () => {
         resolve(true)
         this.isConnected = true
@@ -44,7 +44,7 @@ export default class NetworkManager extends EventManager {
     })
   }
 
-  apiCall<T extends keyof IModel['api']>(name: T, data: IModel['api'][T]['req']): Promise<IApiRect<IModel['api'][T]['res']>> {
+  callApi<T extends keyof IModel['api']>(name: T, data: IModel['api'][T]['req']): Promise<IApiRect<IModel['api'][T]['res']>> {
     return new Promise(resolve => {
       try {
         const timer = setTimeout(() => {
@@ -63,8 +63,9 @@ export default class NetworkManager extends EventManager {
     })
   }
 
-  sendMsg<T extends keyof IModel['msg']>(name: T, data: IModel['msg'][T]) {
+  async sendMsg<T extends keyof IModel['msg']>(name: T, data: IModel['msg'][T]) {
     const msg = { name, data }
+    // await new Promise(resolve => setTimeout(resolve, 2000))
     this._ws.send(JSON.stringify(msg))
   }
 

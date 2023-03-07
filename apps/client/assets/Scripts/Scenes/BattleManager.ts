@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Prefab, instantiate, SpriteFrame, UITransform, view } from 'cc';
-import { ApiMsgEnum, EntityTypeEnum, IClientInput, IMsgServerSync, InputTypeEnum } from '../Common';
+import { ApiMsgEnum, EntityTypeEnum, IClientInput, IMsgClientSync, IMsgServerSync, InputTypeEnum } from '../Common';
 import { ActorManager } from '../Entity/Actor/ActorManager';
 import { BulletManager } from '../Entity/Bullet/BulletManager';
 import { EventEnum, PrefabPathEnum, TexturePathEnum } from '../Enum';
@@ -9,6 +9,7 @@ import NetworkManager from '../Global/NetworkManager';
 import { ObjectPoolManager } from '../Global/ObjectPoolManager';
 import { ResourceManager } from '../Global/ResourceManager';
 import { JoyStick } from '../UI/JoyStickManager';
+import { deepClone } from '../Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('BattleManager')
@@ -16,6 +17,8 @@ export class BattleManager extends Component {
     private _stage: Node = null
     private _ui: Node = null
     private _shouldUpdate = false
+
+    private pendingMsg: IMsgClientSync[] = []
 
     private get _data() {
         return DataManager.Instance
@@ -71,10 +74,10 @@ export class BattleManager extends Component {
     private _tick(dt: number) {
         this._actorTick(dt);
 
-        EventManager.Instance.emit(EventEnum.ClientSync, {
-            type: InputTypeEnum.TimePast,
-            dt
-        })
+        // EventManager.Instance.emit(EventEnum.ClientSync, {
+        //     type: InputTypeEnum.TimePast,
+        //     dt
+        // })
     }
 
     private _actorTick(dt: number) {
@@ -129,7 +132,7 @@ export class BattleManager extends Component {
     }
 
     private _renderBullet() {
-        for (const d of this._data.state.bulltes) {
+        for (const d of this._data.state.bullets) {
             let bm = this._data.bulletMap.get(d.id)
             if (!bm) {
                 const bullet = ObjectPoolManager.Instance.get(d.type)
@@ -148,12 +151,30 @@ export class BattleManager extends Component {
             input,
         }
         NetworkManager.Instance.sendMsg(ApiMsgEnum.MsgClientSync, data)
+
+        // predict input
+        if (input.type === InputTypeEnum.ActorMove) {
+            DataManager.Instance.applyInput(input)
+            this.pendingMsg.push(data)
+        }
     }
 
     private _handleServerSync({ inputs, lastFrameId }: IMsgServerSync) {
+        // rollback to last server state
+        DataManager.Instance.state = DataManager.Instance.lastState
         for (const input of inputs) {
             DataManager.Instance.applyInput(input)
         }
+
+        // record last server state
+        DataManager.Instance.lastState = deepClone(DataManager.Instance.state)
+
+        // apply predict input
+        const predictMsgs = this.pendingMsg.filter(input => input.frameId > lastFrameId)
+        for (const msg of predictMsgs) {
+            DataManager.Instance.applyInput(msg.input)
+        }
+
     }
 }
 

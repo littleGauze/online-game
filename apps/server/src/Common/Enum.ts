@@ -15,10 +15,21 @@ export enum EntityTypeEnum {
 
 export enum ApiMsgEnum {
   ApiPlayerJoin = 'ApiPlayerJoin',
+  ApiRoomView = 'ApiRoomView',
   ApiPlayerList = 'ApiPlayerList',
+  ApiRoomCreate = 'ApiRoomCreate',
+  ApiRoomList = 'ApiRoomList',
+  ApiRoomJoin = 'ApiRoomJoin',
+  ApiRoomLeave = 'ApiRoomLeave',
+  ApiGameStart = 'ApiGameStart',
+
   MsgClientSync = 'MsgClientSync',
   MsgServerSync = 'MsgServerSync',
   MsgPlayerSync = 'MsgPlayerSync',
+  MsgRoomPlayerSync = 'MsgRoomPlayerSync',
+  MsgRoomSync = 'MsgRoomSync',
+  MsgRoomViewSync = 'MsgRoomViewSync',
+  MsgGamgeStart = 'MsgGamgeStart',
 }
 
 export enum EventEnum {

@@ -1,6 +1,6 @@
 import { Prefab, SpriteFrame, Node, Input } from "cc";
 import Singleton from "../Base/Singleton";
-import { EntityTypeEnum, IActorMove, IBullet, IClientInput, InputTypeEnum, IState } from "../Common";
+import { EntityTypeEnum, IActorMove, IBullet, IClientInput, InputTypeEnum, IRoom, IState, toFixed } from "../Common";
 import EventManager from "../Global/EventManager";
 import { ActorManager } from "../Entity/Actor/ActorManager";
 import { BulletManager } from "../Entity/Bullet/BulletManager";
@@ -26,6 +26,7 @@ export default class DataManager extends Singleton {
   actorMap: Map<number, ActorManager> = new Map()
   bulletMap: Map<number, BulletManager> = new Map()
   textureMap: Map<string, SpriteFrame[]> = new Map()
+  roomInfo: IRoom = null
 
   width: number = SCREEN_WIDTH
   height: number = SCREEN_HEIGHT
@@ -33,30 +34,8 @@ export default class DataManager extends Singleton {
   myPlayerId = 1
   frameId = 1
 
-  state: IState = {
-    nextBulletId: 1,
-    actors: [
-      {
-        id: 1,
-        hp: 30,
-        type: EntityTypeEnum.Actor1,
-        weaponType: EntityTypeEnum.Weapon1,
-        bulletType: EntityTypeEnum.Bullet2,
-        position: { x: -150, y: -150 },
-        direction: { x: 0, y: 0 },
-      },
-      {
-        id: 2,
-        hp: 100,
-        type: EntityTypeEnum.Actor1,
-        weaponType: EntityTypeEnum.Weapon1,
-        bulletType: EntityTypeEnum.Bullet2,
-        position: { x: 150, y: 150 },
-        direction: { x: -1, y: 0 },
-      },
-    ],
-    bulltes: []
-  }
+  state: IState = null
+  lastState: IState = null
 
   applyInput(input: IClientInput) {
     switch (input.type) {
@@ -66,8 +45,8 @@ export default class DataManager extends Singleton {
         actor.direction.x = x
         actor.direction.y = y
 
-        actor.position.x += x * dt * ACTOR_SPEED
-        actor.position.y += y * dt * ACTOR_SPEED
+        actor.position.x = toFixed(actor.position.x + x * dt * ACTOR_SPEED)
+        actor.position.y = toFixed(actor.position.y + y * dt * ACTOR_SPEED)
         break
       case InputTypeEnum.WeaponShoot:
         const { owner, direction, position } = input
@@ -78,12 +57,12 @@ export default class DataManager extends Singleton {
           direction,
           position,
         }
-        this.state.bulltes.push(bullet)
+        this.state.bullets.push(bullet)
         EventManager.Instance.emit(EventEnum.BulletBorn, owner)
         break
       case InputTypeEnum.TimePast:
         const { dt: _dt } = input
-        const bullets = this.state.bulltes
+        const bullets = this.state.bullets
         const actors = this.state.actors
 
         for (let i = bullets.length - 1; i >= 0; i--) {
@@ -93,8 +72,8 @@ export default class DataManager extends Singleton {
             if (((actor.position.x - bullet.position.x) ** 2 + (actor.position.y - bullet.position.y) ** 2) < ((ACTOR_RADIUS + BULLET_RADIUS) / 2) ** 2) {
               actor.hp -= WEAPON_DAMAGE
               EventManager.Instance.emit(EventEnum.ExplosionBorn, bullet.id, {
-                x: (actor.position.x + bullet.position.x) / 2,
-                y: (actor.position.y + bullet.position.y) / 2,
+                x: toFixed((actor.position.x + bullet.position.x) / 2),
+                y: toFixed((actor.position.y + bullet.position.y) / 2),
               })
               bullets.splice(i, 1)
               break
@@ -109,8 +88,8 @@ export default class DataManager extends Singleton {
         }
 
         for (const bullet of bullets) {
-          bullet.position.x += _dt * bullet.direction.x * BULLET_SPEED
-          bullet.position.y += _dt * bullet.direction.y * BULLET_SPEED
+          bullet.position.x = toFixed(bullet.position.x + _dt * bullet.direction.x * BULLET_SPEED)
+          bullet.position.y = toFixed(bullet.position.y + _dt * bullet.direction.y * BULLET_SPEED)
         }
         break
     }

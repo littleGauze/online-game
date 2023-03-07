@@ -30,7 +30,7 @@ export class LoginManager extends Component {
             return
         }
 
-        const { success, res, err } = await NetworkManager.Instance.apiCall(ApiMsgEnum.ApiPlayerJoin, { nickname })
+        const { success, res, err } = await NetworkManager.Instance.callApi(ApiMsgEnum.ApiPlayerJoin, { nickname })
         if (!success) {
             console.error(err)
             return

@@ -1,6 +1,6 @@
 import { _decorator, Node, UITransform, Vec2 } from 'cc';
 import { EntityManager } from '../../Base/EntityManager';
-import { IActor, InputTypeEnum } from '../../Common';
+import { IActor, InputTypeEnum, toFixed } from '../../Common';
 import { EntityStateEnum, EventEnum } from '../../Enum';
 import DataManager from '../../Global/DataManager';
 import EventManager from '../../Global/EventManager';
@@ -49,8 +49,14 @@ export class WeaponManager extends EntityManager {
         EventManager.Instance.emit(EventEnum.ClientSync, {
             owner: this._owner,
             type: InputTypeEnum.WeaponShoot,
-            position: { x: pointStagePos.x, y: pointStagePos.y },
-            direction: { x: dir.x, y: dir.y }
+            position: {
+                x: toFixed(pointStagePos.x),
+                y: toFixed(pointStagePos.y)
+            },
+            direction: {
+                x: toFixed(dir.x),
+                y: toFixed(dir.y)
+            }
         })
     }
 }

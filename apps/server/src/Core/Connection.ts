@@ -34,7 +34,7 @@ export class Connection extends EventEmitter {
           try {
             const cbs = this._msgMap.get(name)
             cbs.forEach((it: IItem) => {
-              it.cb.call(it.ctx, data)
+              it.cb.call(it.ctx, this, data)
             })
           } catch (err) {
             console.error(err)
@@ -52,7 +52,7 @@ export class Connection extends EventEmitter {
     this._ws.send(JSON.stringify(msg))
   }
 
-  listenMsg<T extends keyof IModel['msg']>(name: T, cb: (args: IModel['msg'][T]) => void, ctx: unknown) {
+  listenMsg<T extends keyof IModel['msg']>(name: T, cb: (conn: Connection, args: IModel['msg'][T]) => void, ctx: unknown) {
     if (this._msgMap.has(name)) {
       this._msgMap.get(name).push({ cb, ctx });
     } else {
@@ -60,7 +60,7 @@ export class Connection extends EventEmitter {
     }
   }
 
-  unListenMsg<T extends keyof IModel['msg']>(name: T, cb: (args: IModel['msg'][T]) => void, ctx: unknown) {
+  unListenMsg<T extends keyof IModel['msg']>(name: T, cb: (conn: Connection, args: IModel['msg'][T]) => void, ctx: unknown) {
     if (this._msgMap.has(name)) {
       const index = this._msgMap.get(name).findIndex((i) => cb === i.cb && i.ctx === ctx);
       index > -1 && this._msgMap.get(name).splice(index, 1);

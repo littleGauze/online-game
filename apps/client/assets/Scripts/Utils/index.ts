@@ -9,3 +9,17 @@ export const sortSpriteFrame = (spriteFrame: Array<SpriteFrame>) =>
 
 
 export const arc2dgree = (arc: number) => (arc / Math.PI) * 180
+
+export const deepClone = (src: any) => {
+  if (typeof src !== 'object' || src === null) return src
+
+  const target = Array.isArray(src) ? [] : {}
+
+  for (const key in src) {
+    if (Object.prototype.hasOwnProperty.call(src, key)) {
+      target[key] = deepClone(src[key])
+    }
+  }
+
+  return target
+}

@@ -1,5 +1,5 @@
-import { IClientInput } from '../Common/State'
-import { IPlayer } from './Api'
+import { IClientInput, IState } from '../Common/State'
+import { IPlayer, IRoom } from './Api'
 
 export interface IMsgClientSync {
   frameId: number
@@ -13,4 +13,20 @@ export interface IMsgServerSync {
 
 export interface IMsgPlayerSync {
   list: IPlayer[]
+}
+
+export interface IMsgRoomSync {
+  list: IRoom[]
+}
+
+export interface IMsgRoomViewSync {
+  room: IRoom
+}
+
+export interface IMsgSync {
+  room: IRoom
+}
+
+export interface IMsgGameStart {
+  state: IState
 }

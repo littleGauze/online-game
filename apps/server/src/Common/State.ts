@@ -18,7 +18,7 @@ export interface IActor {
 export interface IState {
   nextBulletId: number
   actors: IActor[],
-  bulltes: IBullet[]
+  bullets: IBullet[]
 }
 
 export interface IBullet {

@@ -1,6 +1,7 @@
 import { WebSocketServer } from "ws";
 import { PlayerManager } from "./Biz/PlayerManager";
-import { ApiMsgEnum, IApiPlayerJoinReq, IApiPlayerJoinRes, IApiPlayerListReq, IApiPlayerListRes } from "./Common";
+import { RoomManager } from "./Biz/RoomManager";
+import { ApiMsgEnum, IApiGameStartReq, IApiGameStartRes, IApiPlayerJoinReq, IApiPlayerJoinRes, IApiPlayerListReq, IApiPlayerListRes, IApiRoomCreateReq, IApiRoomCreateRes, IApiRoomJoinReq, IApiRoomJoinRes, IApiRoomLeaveReq, IApiRoomLeaveRes, IApiRoomListReq, IApiRoomListRes, IApiRoomViewReq, IApiRoomViewRes } from "./Common";
 import { Connection, MySever } from "./Core";
 import { symlinkCommon } from "./Utils";
 
@@ -41,6 +42,51 @@ server.setApi(ApiMsgEnum.ApiPlayerJoin, (conn: Connection, data: IApiPlayerJoinR
 server.setApi(ApiMsgEnum.ApiPlayerList, (conn: Connection, data: IApiPlayerListReq): IApiPlayerListRes => {
   const list = PlayerManager.Instance.getPlayersView()
   return { list }
+})
+
+server.setApi(ApiMsgEnum.ApiRoomCreate, (conn: Connection, data: IApiRoomCreateReq): IApiRoomCreateRes => {
+  const room = RoomManager.Instance.createRoom()
+  if (!conn.playerId) throw new Error('未登录')
+  room.join(conn.playerId)
+  RoomManager.Instance.roomSync()
+  return { room: RoomManager.Instance.getRoomView(room) }
+})
+
+server.setApi(ApiMsgEnum.ApiRoomList, (conn: Connection, data: IApiRoomListReq): IApiRoomListRes => {
+  const list = RoomManager.Instance.getRoomsView()
+  return { list }
+})
+
+server.setApi(ApiMsgEnum.ApiRoomView, (conn: Connection, data: IApiRoomViewReq): IApiRoomViewRes => {
+  const room = RoomManager.Instance.getRoomById(data.rid)
+  return { room: RoomManager.Instance.getRoomView(room) }
+})
+
+server.setApi(ApiMsgEnum.ApiRoomJoin, (conn: Connection, data: IApiRoomJoinReq): IApiRoomJoinRes => {
+  const { rid } = data
+  const room = RoomManager.Instance.getRoomById(rid)
+  room.join(conn.playerId)
+  room.sync()
+  return { room: RoomManager.Instance.getRoomView(room) }
+})
+
+server.setApi(ApiMsgEnum.ApiRoomLeave, (conn: Connection, data: IApiRoomLeaveReq): IApiRoomLeaveRes => {
+  const { rid } = data
+  const room = RoomManager.Instance.getRoomById(rid)
+  room.leave(conn.playerId)
+  room.sync()
+  return { room: RoomManager.Instance.getRoomView(room) }
+})
+
+server.setApi(ApiMsgEnum.ApiGameStart, (conn: Connection, data: IApiGameStartReq): IApiGameStartRes => {
+  if (conn.playerId) {
+    const player = PlayerManager.Instance.getPlayerById(conn.playerId)
+    if (player.rid) {
+      const room = RoomManager.Instance.getRoomById(player.rid)
+      room.gameStart()
+    }
+  }
+  return {}
 })
 
 // wss.on('connection', socket => {
