@@ -24,3 +24,12 @@ export const symlinkCommon = async () => {
       });
   }
 };
+
+export const buffer2arrayBuffer = (buffer: Buffer) => {
+  const ab = new ArrayBuffer(buffer.byteLength)
+  const dv = new DataView(ab)
+  for (let i = 0; i < ab.byteLength; i++) {
+    dv.setUint8(i, buffer[i])
+  }
+  return ab
+}

@@ -1,4 +1,4 @@
-import { ApiMsgEnum, IModel } from "../Common";
+import { ApiMsgEnum, binaryDecode, binaryEncode, IModel, strdecode, strencode } from "../Common";
 import { IApiRect } from "../Common/State";
 import EventManager from "../Global/EventManager";
 
@@ -20,6 +20,7 @@ export default class NetworkManager extends EventManager {
     return new Promise((resolve, reject) => {
       if (this.isConnected) return resolve(true)
       this._ws = new WebSocket(`ws://192.168.124.12:${this._port}`)
+      this._ws.binaryType = 'arraybuffer'
       this._ws.onopen = () => {
         resolve(true)
         this.isConnected = true
@@ -35,7 +36,7 @@ export default class NetworkManager extends EventManager {
       }
       this._ws.onmessage = e => {
         try {
-          const msg = JSON.parse(e.data)
+          const msg = binaryDecode(e.data)
           this.emit(msg.name, msg.data)
         } catch (err) {
           console.log(err)
@@ -64,9 +65,9 @@ export default class NetworkManager extends EventManager {
   }
 
   async sendMsg<T extends keyof IModel['msg']>(name: T, data: IModel['msg'][T]) {
-    const msg = { name, data }
     // await new Promise(resolve => setTimeout(resolve, 2000))
-    this._ws.send(JSON.stringify(msg))
+    const ab = binaryEncode(name, data)
+    this._ws.send(ab.buffer)
   }
 
   on<T extends keyof IModel['msg']>(name: T, cb: (args: IModel['msg'][T]) => void, ctx: unknown) {

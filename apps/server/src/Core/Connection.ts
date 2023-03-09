@@ -1,6 +1,7 @@
 import { EventEmitter } from "stream";
 import { WebSocket } from "ws";
-import { IModel } from "../Common";
+import { ApiMsgEnum, IModel, strdecode, binaryEncode, binaryDecode } from "../Common";
+import { buffer2arrayBuffer } from "../Utils";
 import { MySever } from "./MyServer";
 
 interface IItem {
@@ -9,15 +10,14 @@ interface IItem {
 }
 
 export class Connection extends EventEmitter {
-  private _msgMap: Map<string, IItem[]> = new Map()
+  private _msgMap: Map<ApiMsgEnum, IItem[]> = new Map()
 
   constructor(private _server: MySever, private _ws: WebSocket) {
     super()
     _ws.on('close', () => this.emit('close'))
-    _ws.on('message', buffer => {
-      const str = buffer.toString()
+    _ws.on('message', (buffer: Buffer) => {
       try {
-        const msg = JSON.parse(str)
+        const msg = binaryDecode(buffer2arrayBuffer(buffer))
         const { name, data } = msg
 
         if (this._server.apiMap.has(name)) {
@@ -48,8 +48,9 @@ export class Connection extends EventEmitter {
   }
 
   sendMsg<T extends keyof IModel['msg']>(name: T, data: IModel['msg'][T]) {
-    const msg = { name, data }
-    this._ws.send(JSON.stringify(msg))
+    const ab = binaryEncode(name, data)
+    const buffer = Buffer.from(ab.buffer)
+    this._ws.send(buffer)
   }
 
   listenMsg<T extends keyof IModel['msg']>(name: T, cb: (conn: Connection, args: IModel['msg'][T]) => void, ctx: unknown) {

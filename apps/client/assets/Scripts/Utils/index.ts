@@ -23,3 +23,11 @@ export const deepClone = (src: any) => {
 
   return target
 }
+
+export const randomBySeed = function randomBySeed(seed: number) {
+  return () => {
+    const num = (seed * 9301 + 49297) % 233280
+    seed = num
+    return num / 233280
+  }
+}

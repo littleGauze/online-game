@@ -6,6 +6,7 @@ import { ActorManager } from "../Entity/Actor/ActorManager";
 import { BulletManager } from "../Entity/Bullet/BulletManager";
 import { EventEnum } from "../Enum";
 import { JoyStick } from "../UI/JoyStickManager";
+import { randomBySeed } from "../Utils";
 
 const ACTOR_SPEED = 100
 const BULLET_SPEED = 600
@@ -36,6 +37,14 @@ export default class DataManager extends Singleton {
 
   state: IState = null
   lastState: IState = null
+
+  private _random: () => number
+  get random() {
+    if (!this._random) {
+      this._random = randomBySeed(1)
+    }
+    return this._random
+  }
 
   applyInput(input: IClientInput) {
     switch (input.type) {
@@ -70,7 +79,11 @@ export default class DataManager extends Singleton {
           for (const actor of actors) {
             if (actor.id === bullet.owner) continue
             if (((actor.position.x - bullet.position.x) ** 2 + (actor.position.y - bullet.position.y) ** 2) < ((ACTOR_RADIUS + BULLET_RADIUS) / 2) ** 2) {
-              actor.hp -= WEAPON_DAMAGE
+              if (DataManager.Instance.random() > 0.7) {
+                actor.hp -= WEAPON_DAMAGE * 2
+              } else {
+                actor.hp -= WEAPON_DAMAGE
+              }
               EventManager.Instance.emit(EventEnum.ExplosionBorn, bullet.id, {
                 x: toFixed((actor.position.x + bullet.position.x) / 2),
                 y: toFixed((actor.position.y + bullet.position.y) / 2),

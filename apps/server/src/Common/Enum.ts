@@ -1,7 +1,7 @@
 export enum InputTypeEnum {
-  ActorMove = 'ActorMove',
-  WeaponShoot = 'WeaponShoot',
-  TimePast = 'TimePast',
+  ActorMove,
+  WeaponShoot,
+  TimePast,
 }
 
 export enum EntityTypeEnum {
@@ -14,22 +14,22 @@ export enum EntityTypeEnum {
 }
 
 export enum ApiMsgEnum {
-  ApiPlayerJoin = 'ApiPlayerJoin',
-  ApiRoomView = 'ApiRoomView',
-  ApiPlayerList = 'ApiPlayerList',
-  ApiRoomCreate = 'ApiRoomCreate',
-  ApiRoomList = 'ApiRoomList',
-  ApiRoomJoin = 'ApiRoomJoin',
-  ApiRoomLeave = 'ApiRoomLeave',
-  ApiGameStart = 'ApiGameStart',
+  ApiPlayerJoin,
+  ApiRoomView,
+  ApiPlayerList,
+  ApiRoomCreate,
+  ApiRoomList,
+  ApiRoomJoin,
+  ApiRoomLeave,
+  ApiGameStart,
 
-  MsgClientSync = 'MsgClientSync',
-  MsgServerSync = 'MsgServerSync',
-  MsgPlayerSync = 'MsgPlayerSync',
-  MsgRoomPlayerSync = 'MsgRoomPlayerSync',
-  MsgRoomSync = 'MsgRoomSync',
-  MsgRoomViewSync = 'MsgRoomViewSync',
-  MsgGamgeStart = 'MsgGamgeStart',
+  MsgClientSync,
+  MsgServerSync,
+  MsgPlayerSync,
+  MsgRoomPlayerSync,
+  MsgRoomSync,
+  MsgRoomViewSync,
+  MsgGamgeStart,
 }
 
 export enum EventEnum {
