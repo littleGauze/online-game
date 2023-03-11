@@ -76,6 +76,7 @@ export default class DataManager extends Singleton {
 
         for (let i = bullets.length - 1; i >= 0; i--) {
           const bullet = bullets[i]
+          const me = actors.find(a => a.id === this.myPlayerId)
           for (const actor of actors) {
             if (actor.id === bullet.owner) continue
             if (((actor.position.x - bullet.position.x) ** 2 + (actor.position.y - bullet.position.y) ** 2) < ((ACTOR_RADIUS + BULLET_RADIUS) / 2) ** 2) {
@@ -84,6 +85,12 @@ export default class DataManager extends Singleton {
               } else {
                 actor.hp -= WEAPON_DAMAGE
               }
+
+              // lose
+              if (actor.hp <= 0 && actor.id === this.myPlayerId) {
+                EventManager.Instance.emit(EventEnum.ShowResult, false)
+              }
+
               EventManager.Instance.emit(EventEnum.ExplosionBorn, bullet.id, {
                 x: toFixed((actor.position.x + bullet.position.x) / 2),
                 y: toFixed((actor.position.y + bullet.position.y) / 2),
@@ -92,6 +99,13 @@ export default class DataManager extends Singleton {
               break
             }
           }
+
+          // win
+          const enemy = actors.filter(a => a.id !== this.myPlayerId)
+          if (enemy.every(e => e.hp <= 0) && me.hp > 0) {
+            EventManager.Instance.emit(EventEnum.ShowResult, true)
+          }
+
           if (Math.abs(bullet.position.x) > this.width / 2 || Math.abs(bullet.position.y) > this.height / 2) {
             bullets.splice(i, 1)
 

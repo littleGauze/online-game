@@ -1,4 +1,4 @@
-import { ApiMsgEnum, EntityTypeEnum, IClientInput, IMsgClientSync, InputTypeEnum, IState, toFixed } from "../Common"
+import { ApiMsgEnum, EntityTypeEnum, IClientInput, IMsgClientSync, InputTypeEnum, IState, IVec2, RoomStatusEnum, toFixed } from "../Common"
 import { Connection } from "../Core"
 import { Player } from "./Player"
 import { PlayerManager } from "./PlayerManager"
@@ -6,6 +6,7 @@ import { RoomManager } from "./RoomManager"
 
 export class Room {
   id: number
+  status: RoomStatusEnum = RoomStatusEnum.Ready
   players: Set<Player> = new Set()
   playerInputs: IClientInput[] = []
   lastTimer: number
@@ -46,6 +47,14 @@ export class Room {
   }
 
   gameStart() {
+    const getPos = (idx: number): IVec2 => {
+      if (idx % 2) {
+        const i = (idx - 1) / 2
+        return { x: 200, y: 150 - (i * 300)  }
+      }
+      const i = idx / 2
+      return { x: -200, y: -150 + (i * 300) }
+    }
     const state = {
       nextBulletId: 1,
       bullets: [],
@@ -55,7 +64,7 @@ export class Room {
         type: EntityTypeEnum.Actor1,
         weaponType: EntityTypeEnum.Weapon1,
         bulletType: EntityTypeEnum.Bullet2,
-        position: { x: -150 + 300 * idx, y: -150 + 300 * idx },
+        position: getPos(idx),
         direction: { x: 0, y: 0 }
       }))
     }
@@ -72,6 +81,9 @@ export class Room {
     const timer2 = setInterval(() => {
       this.timePast()
     }, 16)
+
+    this.status = RoomStatusEnum.Gaming
+    RoomManager.Instance.roomSync()
   }
 
   timePast() {

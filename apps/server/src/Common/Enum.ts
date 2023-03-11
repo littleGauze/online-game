@@ -4,6 +4,11 @@ export enum InputTypeEnum {
   TimePast,
 }
 
+export enum RoomStatusEnum {
+  Ready,
+  Gaming,
+}
+
 export enum EntityTypeEnum {
   Actor1 = 'Actor1',
   Map = 'Map',

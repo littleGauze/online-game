@@ -67,6 +67,8 @@ export class RoomManager extends Component {
     }
 
     async handleStart() {
+        const { players } = DataManager.Instance.roomInfo
+        if (players.length < 2) return
         await NetworkManager.Instance.callApi(ApiMsgEnum.ApiGameStart, {})
     }
 }

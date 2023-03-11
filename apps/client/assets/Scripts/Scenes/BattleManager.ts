@@ -9,6 +9,7 @@ import NetworkManager from '../Global/NetworkManager';
 import { ObjectPoolManager } from '../Global/ObjectPoolManager';
 import { ResourceManager } from '../Global/ResourceManager';
 import { JoyStick } from '../UI/JoyStickManager';
+import { ResultManager } from '../UI/ResultManager';
 import { deepClone } from '../Utils';
 const { ccclass, property } = _decorator;
 
@@ -17,6 +18,9 @@ export class BattleManager extends Component {
     private _stage: Node = null
     private _ui: Node = null
     private _shouldUpdate = false
+
+    @property(Node)
+    result: Node = null
 
     private pendingMsg: IMsgClientSync[] = []
 
@@ -47,15 +51,22 @@ export class BattleManager extends Component {
         this._loadMap()
         this._shouldUpdate = true
 
+        EventManager.Instance.on(EventEnum.ShowResult, this.handleShowResult, this)
         EventManager.Instance.on(EventEnum.ClientSync, this._handleClientSync, this)
         NetworkManager.Instance.on(ApiMsgEnum.MsgServerSync, this._handleServerSync, this)
     }
 
     private _clearGame() {
+        EventManager.Instance.off(EventEnum.ShowResult, this.handleShowResult, this)
         EventManager.Instance.off(EventEnum.ClientSync, this._handleClientSync, this)
         NetworkManager.Instance.off(ApiMsgEnum.MsgServerSync, this._handleServerSync, this)
         DataManager.Instance.stage = this._stage = this.node.getChildByName('Stage')
         this._stage.destroyAllChildren()
+    }
+
+    handleShowResult(isSuccess: boolean) {
+        this.result.active = true
+        this.result.getComponent(ResultManager).text.string = isSuccess ? '<color=#ffffff>You Win</color>' : '<color=#ffffff>You Lose</color>'
     }
 
     private async _connectServer() {

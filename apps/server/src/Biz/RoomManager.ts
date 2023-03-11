@@ -41,8 +41,8 @@ export class RoomManager extends Singleton {
     }
   }
 
-  getRoomView({ id, players }: Room) {
-    return { id, players: PlayerManager.Instance.getPlayersView(players) }
+  getRoomView({ id, status, players }: Room) {
+    return { id, status, players: PlayerManager.Instance.getPlayersView(players) }
   }
 
   getRoomsView(rooms: Set<Room> = this._rooms) {
