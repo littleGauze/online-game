@@ -11,6 +11,12 @@ export class ObjectPoolManager extends Singleton {
   private _objectPool: Node = null
   private _map: Map<EntityTypeEnum, Node[]> = new Map()
 
+  resetStage() {
+    if (!this._objectPool) return
+    this._objectPool = null
+    this._map.clear()
+  }
+
   get(type: EntityTypeEnum) {
     if (!this._objectPool) {
       this._objectPool = new Node('ObjectPool')

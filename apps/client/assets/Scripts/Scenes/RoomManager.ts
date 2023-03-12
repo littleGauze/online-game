@@ -51,6 +51,7 @@ export class RoomManager extends Component {
             player.getComponent(PlayerManager).init(list[i])
             player.active = true
         }
+        DataManager.Instance.roomInfo = room
     }
 
     async _handleGameStart({ state }: IMsgGameStart) {

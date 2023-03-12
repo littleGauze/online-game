@@ -56,12 +56,16 @@ export class BattleManager extends Component {
         NetworkManager.Instance.on(ApiMsgEnum.MsgServerSync, this._handleServerSync, this)
     }
 
-    private _clearGame() {
+    onDestroy() {
         EventManager.Instance.off(EventEnum.ShowResult, this.handleShowResult, this)
         EventManager.Instance.off(EventEnum.ClientSync, this._handleClientSync, this)
         NetworkManager.Instance.off(ApiMsgEnum.MsgServerSync, this._handleServerSync, this)
+    }
+
+    private _clearGame() {
         DataManager.Instance.stage = this._stage = this.node.getChildByName('Stage')
         this._stage.destroyAllChildren()
+        ObjectPoolManager.Instance.resetStage()
     }
 
     handleShowResult(isSuccess: boolean) {
@@ -129,7 +133,7 @@ export class BattleManager extends Component {
     private _renderActor() {
         for (const d of this._data.state.actors) {
             let am = this._data.actorMap.get(d.id)
-            if (!am) {
+            if (!am || !am.node) {
                 const prefab = this._data.prefabMap.get(d.type)
                 const actor = instantiate(prefab)
                 actor.setParent(this._stage)
@@ -145,9 +149,9 @@ export class BattleManager extends Component {
     private _renderBullet() {
         for (const d of this._data.state.bullets) {
             let bm = this._data.bulletMap.get(d.id)
-            if (!bm) {
+            if (!bm || !bm.node) {
                 const bullet = ObjectPoolManager.Instance.get(d.type)
-                bm = bullet.getComponent(BulletManager) || bullet.addComponent(BulletManager)
+                bm = bullet.addComponent(BulletManager)
                 this._data.bulletMap.set(d.id, bm)
                 bm.init(d)
             } else {
