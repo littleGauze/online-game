@@ -19,7 +19,7 @@ export default class NetworkManager extends EventManager {
   connect() {
     return new Promise((resolve, reject) => {
       if (this.isConnected) return resolve(true)
-      this._ws = new WebSocket(`ws://192.168.124.12:${this._port}`)
+      this._ws = new WebSocket(`ws://game.fun4l0ve.com/sync`)
       this._ws.binaryType = 'arraybuffer'
       this._ws.onopen = () => {
         resolve(true)

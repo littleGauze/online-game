@@ -20,7 +20,7 @@ export class MySever extends EventEmitter {
   }
 
   start() {
-    const wss = this._wss = new WebSocketServer({ host: '192.168.124.12', port: this._port })
+    const wss = this._wss = new WebSocketServer({ port: this._port })
     return new Promise((resolve, reject) => {
       wss.on('listening', () => resolve(true))
       wss.on('close', () => reject(false))
